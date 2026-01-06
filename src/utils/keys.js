@@ -17,7 +17,27 @@ export function getPrivateKey() {
     throw new Error(`Private key file not found: ${keyPath}`);
   }
   
-  return fs.readFileSync(keyPath, 'utf8');
+  let keyContent = fs.readFileSync(keyPath, 'utf8').trim();
+  
+  // Убеждаемся, что ключ имеет правильные переносы строк
+  if (!keyContent.includes('\n')) {
+    // Если ключ в одной строке, добавляем переносы
+    keyContent = keyContent.replace(/-----BEGIN PRIVATE KEY-----/, '-----BEGIN PRIVATE KEY-----\n')
+      .replace(/-----END PRIVATE KEY-----/, '\n-----END PRIVATE KEY-----')
+      .replace(/(.{64})/g, '$1\n')
+      .replace(/\n\n/g, '\n');
+  }
+  
+  // Проверяем формат ключа
+  if (keyContent.includes('BEGIN PRIVATE KEY')) {
+    // PKCS#8 format - библиотека должна поддерживать
+    return keyContent;
+  } else if (keyContent.includes('BEGIN RSA PRIVATE KEY')) {
+    // PKCS#1 format
+    return keyContent;
+  } else {
+    throw new Error('Invalid private key format. Expected BEGIN PRIVATE KEY or BEGIN RSA PRIVATE KEY');
+  }
 }
 
 /**
