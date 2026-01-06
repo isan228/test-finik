@@ -6,16 +6,20 @@ const router = express.Router();
 
 router.post('/create', async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, callbackUrl, redirectUrl } = req.body;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
+    if (!callbackUrl) {
+      return res.status(400).json({ error: 'callbackUrl is required' });
+    }
+
     const result = await createFinikPayment({
       amount,
-      redirectUrl: process.env.REDIRECT_URL || 'https://your-site.com/payment/success',
-      webhookUrl: process.env.WEBHOOK_URL || 'https://your-site.com/api/webhooks/finik'
+      redirectUrl: redirectUrl || process.env.REDIRECT_URL || 'https://your-site.com/payment/success',
+      webhookUrl: callbackUrl
     });
 
     // Сохраняем платеж в БД

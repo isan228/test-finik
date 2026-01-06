@@ -1,5 +1,6 @@
 import pkg from '@mancho.devs/authorizer';
 const { Verifier } = pkg;
+import { getPublicKey } from './keys.js';
 
 export function verifyFinikWebhook(req) {
   const signature = req.headers.signature;
@@ -12,7 +13,8 @@ export function verifyFinikWebhook(req) {
     body: req.body
   };
 
+  const publicKey = getPublicKey();
   return new Verifier(requestData)
-    .verify(process.env.FINIK_PUBLIC_KEY, signature);
+    .verify(publicKey, signature);
 }
 

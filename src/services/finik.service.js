@@ -3,6 +3,7 @@ import pkg from '@mancho.devs/authorizer';
 const { Signer } = pkg;
 import { randomUUID } from 'crypto';
 import { FINIK_BASE_URL, FINIK_HOST } from '../config/finik.js';
+import { getPrivateKey } from '../utils/keys.js';
 
 export async function createFinikPayment({ amount, redirectUrl, webhookUrl }) {
   const timestamp = Date.now().toString();
@@ -32,8 +33,9 @@ export async function createFinikPayment({ amount, redirectUrl, webhookUrl }) {
     body
   };
 
+  const privateKey = getPrivateKey();
   const signature = await new Signer(requestData)
-    .sign(process.env.FINIK_PRIVATE_KEY);
+    .sign(privateKey);
 
   const res = await fetch(`${FINIK_BASE_URL}/v1/payment`, {
     method: 'POST',

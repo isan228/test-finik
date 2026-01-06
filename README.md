@@ -25,13 +25,18 @@ npm install
 cp .env.example .env
 ```
 
-2. Заполните переменные окружения в `.env`:
+2. Поместите файлы с ключами в корень проекта:
+   - `finik_private.pem` — приватный ключ RSA (хранить только в backend!)
+   - `finik_public.pem` — публичный ключ
+
+3. Заполните переменные окружения в `.env`:
    - `FINIK_API_KEY` — API ключ от Finik
    - `FINIK_ACCOUNT_ID` — ID аккаунта
-   - `FINIK_PRIVATE_KEY` — приватный ключ RSA (хранить только в backend!)
-   - `FINIK_PUBLIC_KEY` — публичный ключ
-   - `REDIRECT_URL` — URL для редиректа после оплаты
-   - `WEBHOOK_URL` — URL для получения webhook от Finik
+   - `REDIRECT_URL` — URL для редиректа после оплаты (опционально)
+   
+   Или укажите пути к ключам:
+   - `FINIK_PRIVATE_KEY_PATH` — путь к файлу приватного ключа (по умолчанию: `./finik_private.pem`)
+   - `FINIK_PUBLIC_KEY_PATH` — путь к файлу публичного ключа (по умолчанию: `./finik_public.pem`)
 
 ## Запуск
 
@@ -53,9 +58,16 @@ npm run dev
 Request body:
 ```json
 {
-  "amount": 1000
+  "amount": 1000,
+  "callbackUrl": "https://your-site.com/api/webhooks/finik",
+  "redirectUrl": "https://your-site.com/payment/success"
 }
 ```
+
+Параметры:
+- `amount` (обязательный) — сумма платежа
+- `callbackUrl` (обязательный) — URL для получения webhook от Finik
+- `redirectUrl` (опциональный) — URL для редиректа после оплаты
 
 Response:
 ```json
