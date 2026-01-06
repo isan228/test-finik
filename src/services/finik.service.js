@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
-import { Signer } from '@mancho.devs/authorizer';
+import pkg from '@mancho.devs/authorizer';
+const { Signer } = pkg;
 import { randomUUID } from 'crypto';
 import { FINIK_BASE_URL, FINIK_HOST } from '../config/finik.js';
 

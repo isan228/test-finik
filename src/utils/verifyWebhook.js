@@ -1,4 +1,5 @@
-import { Verifier } from '@mancho.devs/authorizer';
+import pkg from '@mancho.devs/authorizer';
+const { Verifier } = pkg;
 
 export function verifyFinikWebhook(req) {
   const signature = req.headers.signature;
