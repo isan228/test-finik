@@ -27,23 +27,35 @@ export async function createFinikPayment({ amount, redirectUrl, webhookUrl }) {
     headers: {
       Host: FINIK_HOST,
       'x-api-key': process.env.FINIK_API_KEY,
-      'x-api-timestamp': timestamp
+      'x-api-timestamp': timestamp,
+      'Content-Type': 'application/json'
     },
     queryStringParameters: undefined,
-    body
+    body: body
   };
 
   const privateKey = getPrivateKey();
   const signature = await new Signer(requestData)
     .sign(privateKey);
 
+  // Логирование для отладки (удалить в продакшене)
+  console.log('Request details:', {
+    url: `${FINIK_BASE_URL}/v1/payment`,
+    host: FINIK_HOST,
+    timestamp,
+    hasApiKey: !!process.env.FINIK_API_KEY,
+    hasAccountId: !!process.env.FINIK_ACCOUNT_ID,
+    signatureLength: signature?.length
+  });
+
   const res = await fetch(`${FINIK_BASE_URL}/v1/payment`, {
     method: 'POST',
     headers: {
-      'content-type': 'application/json',
+      'Content-Type': 'application/json',
+      'Host': FINIK_HOST,
       'x-api-key': process.env.FINIK_API_KEY,
       'x-api-timestamp': timestamp,
-      signature
+      'signature': signature
     },
     body: JSON.stringify(body),
     redirect: 'manual'
