@@ -29,11 +29,14 @@ export function getPrivateKey() {
   }
   
   // Проверяем формат ключа
-  if (keyContent.includes('BEGIN PRIVATE KEY')) {
-    // PKCS#8 format - библиотека должна поддерживать
+  if (keyContent.includes('BEGIN RSA PRIVATE KEY')) {
+    // PKCS#1 format - предпочтительный формат
     return keyContent;
-  } else if (keyContent.includes('BEGIN RSA PRIVATE KEY')) {
-    // PKCS#1 format
+  } else if (keyContent.includes('BEGIN PRIVATE KEY')) {
+    // PKCS#8 format - библиотека может не поддерживать, попробуем использовать как есть
+    // Если возникнут проблемы, нужно конвертировать в PKCS#1:
+    // openssl rsa -in finik_private.pem -out finik_private.pem -traditional
+    console.warn('Warning: Using PKCS#8 format. If you get "Invalid PEM" errors, convert to PKCS#1 with: openssl rsa -in finik_private.pem -out finik_private.pem -traditional');
     return keyContent;
   } else {
     throw new Error('Invalid private key format. Expected BEGIN PRIVATE KEY or BEGIN RSA PRIVATE KEY');
