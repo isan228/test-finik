@@ -142,3 +142,4 @@ pm2 restart finik-backend
 
 📖 **Подробная инструкция**: см. [DEPLOY.md](./DEPLOY.md)
 
+

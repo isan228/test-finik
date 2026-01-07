@@ -1,11 +1,19 @@
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import paymentRoutes from './routes/payment.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 // Middleware для парсинга JSON
 app.use(express.json());
+
+// Статическая раздача файлов из папки public
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Middleware для логирования запросов
 app.use((req, res, next) => {
@@ -29,4 +37,5 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
+
 

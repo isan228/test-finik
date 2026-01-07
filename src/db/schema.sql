@@ -16,3 +16,4 @@ CREATE INDEX IF NOT EXISTS idx_payment_id ON payments(payment_id);
 CREATE INDEX IF NOT EXISTS idx_transaction_id ON payments(transaction_id);
 CREATE INDEX IF NOT EXISTS idx_status ON payments(status);
 
+
