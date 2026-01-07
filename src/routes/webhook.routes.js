@@ -6,6 +6,17 @@ const router = express.Router();
 
 router.post('/finik', async (req, res) => {
   try {
+    // Логирование входящего webhook
+    console.log('\n' + '='.repeat(60));
+    console.log('📨 WEBHOOK ОТ FINIK');
+    console.log('='.repeat(60));
+    console.log('📋 REQUEST BODY:');
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log('📝 HEADERS:');
+    console.log('  signature:', req.headers.signature ? `${req.headers.signature.substring(0, 60)}...` : 'NOT SET');
+    console.log('  content-type:', req.headers['content-type'] || 'NOT SET');
+    console.log('='.repeat(60) + '\n');
+
     // Проверяем подпись webhook
     verifyFinikWebhook(req);
 
@@ -20,6 +31,9 @@ router.post('/finik', async (req, res) => {
     
     if (existingPayment && existingPayment.status === status) {
       // Уже обработали этот webhook
+      console.log('⚠️  Webhook уже обработан ранее (идемпотентность)');
+      console.log('TransactionId:', transactionId);
+      console.log('Status:', status);
       return res.sendStatus(200);
     }
 
@@ -29,7 +43,10 @@ router.post('/finik', async (req, res) => {
       : null;
 
     if (!payment) {
-      console.warn(`Payment not found for PaymentId: ${PaymentId}, transactionId: ${transactionId}`);
+      console.warn('\n⚠️  ПЛАТЕЖ НЕ НАЙДЕН В БД');
+      console.warn('PaymentId:', PaymentId);
+      console.warn('TransactionId:', transactionId);
+      console.warn('Status:', status);
       // Возвращаем 200, чтобы Finik не повторял запрос
       return res.sendStatus(200);
     }
@@ -41,6 +58,14 @@ router.post('/finik', async (req, res) => {
         transactionId,
         'SUCCEEDED'
       );
+      console.log('\n' + '='.repeat(60));
+      console.log('✅ ПЛАТЕЖ УСПЕШНО ОБРАБОТАН');
+      console.log('='.repeat(60));
+      console.log('PaymentId:', payment.payment_id);
+      console.log('TransactionId:', transactionId);
+      console.log('Status: SUCCEEDED');
+      console.log('Amount:', payment.amount, 'сом');
+      console.log('='.repeat(60) + '\n');
       // TODO: Здесь можно добавить логику уведомления пользователя, отправки email и т.д.
     } else if (status === 'FAILED') {
       await paymentsRepository.updatePaymentStatus(
@@ -48,6 +73,14 @@ router.post('/finik', async (req, res) => {
         transactionId,
         'FAILED'
       );
+      console.log('\n' + '='.repeat(60));
+      console.log('❌ ПЛАТЕЖ НЕ УДАЛСЯ');
+      console.log('='.repeat(60));
+      console.log('PaymentId:', payment.payment_id);
+      console.log('TransactionId:', transactionId);
+      console.log('Status: FAILED');
+      console.log('Amount:', payment.amount, 'сом');
+      console.log('='.repeat(60) + '\n');
       // TODO: Здесь можно добавить логику обработки ошибки
     }
 
